@@ -1,0 +1,13 @@
+import java.util.Scanner;
+public class Hello{
+public static void main(Steing[] args){
+Scanner sc= new Scanner(System.in);
+int N=sc.newInt();
+int M=sc.newInt();
+int counter=1;
+while(counter <=X){
+System.out.print(counter*N + " " );
+counter++;
+}
+}
+}
