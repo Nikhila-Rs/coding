@@ -1,0 +1,167 @@
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int kMaxN = 300005;
+
+vector<int> G[kMaxN];
+int Color[kMaxN], Linear[kMaxN], Beg[kMaxN],
+    End[kMaxN], Depth[kMaxN];
+long long Answer[kMaxN];
+
+int n, colors, timer;
+
+int Parent[20][kMaxN];
+
+void DFS(int node) {
+    Beg[node] = ++timer;
+    Linear[timer] = +Color[node];
+
+    for(auto vec : G[node]) {
+        if(!Beg[vec]) {
+            Parent[0][vec] = node;
+            Depth[vec] = Depth[node] + 1;
+
+            for(int i = 1; Parent[i - 1][vec]; ++i) {
+                Parent[i][vec] = Parent[i - 1][Parent[i - 1][vec]];
+            }
+
+            DFS(vec);
+        }
+    }
+
+    End[node] = ++timer;
+    Linear[timer] = -Color[node];
+}
+
+int LCA(int a, int b) {
+    if(Depth[a] < Depth[b])
+        swap(a, b);
+
+    int d = Depth[a] - Depth[b];
+    for(int i = 0; d; ++i, d /= 2)
+        if(d % 2)
+            a = Parent[i][a];
+
+    if(a == b)
+        return a;
+
+    for(int i = 19; i >= 0; --i)
+        if(Parent[i][a] != Parent[i][b])
+            a = Parent[i][a], b = Parent[i][b];
+
+    assert(Parent[0][a] == Parent[0][b]);
+    return Parent[0][a];
+}
+
+
+struct Query {
+    int a, b, i, sgn;
+};
+vector<Query> Queries;
+void AddQuery(int a, int b, int i, int sgn) {
+    if(a == 0 || b == 0) return;
+    Queries.push_back(Query {a, b, i, sgn});
+    //cerr << "Added: " << a << " " << b << " at ind " << i << " with sign " << sgn << '\n';
+}
+void AddQuery(int a, int b, int c, int d, int i) {
+    AddQuery(a, c, i, 1);
+    AddQuery(b, c, i, -1);
+    AddQuery(a, d, i, -1);
+    AddQuery(b, d, i, 1);
+}
+
+int Count[2][kMaxN];
+long long global_ans;
+void Add(int at, int col) {
+    int pos = abs(col);
+    int delta = col / pos;
+    
+    global_ans -= 1LL * Count[0][pos] * Count[1][pos];
+    Count[at][pos] += delta;
+    global_ans += 1LL * Count[0][pos] * Count[1][pos];
+}
+
+void SolveQueries() {
+    for(auto &q : Queries) {
+        Answer[q.i] -= q.sgn * (1 + Depth[LCA(q.a, q.b)]);
+        
+        q.a = Beg[q.a];
+        q.b = Beg[q.b];
+        
+        if(q.a > q.b) 
+            swap(q.a, q.b);
+    }
+    
+    const int kMagic = 256;
+    sort(Queries.begin(), Queries.end(), [](Query &a, Query &b) {
+        if(a.a / kMagic == b.a / kMagic)
+            return a.b < b.b;
+        return a.a < b.a;
+    });
+    
+    int b = 0, e = 0;
+    for(auto &q : Queries) {
+        while(b < q.a) Add(0, Linear[++b]);
+        while(e < q.b) Add(1, Linear[++e]);
+        while(b > q.a) Add(0, -Linear[b--]);
+        while(e > q.b) Add(1, -Linear[e--]);
+        
+        Answer[q.i] += global_ans * q.sgn;
+    }
+    
+}
+
+int main() {
+    int q;
+    cin >> n >> q;
+
+    map<int, int> normMap;
+    for(int i = 1; i <= n; ++i) {
+        cin >> Color[i];
+        auto &norm = normMap[Color[i]];
+        if(norm == 0) 
+            norm = ++colors;
+        Color[i] = norm;
+    }
+
+    for(int i = 2; i <= n; ++i) {
+        int a, b;
+        cin >> a >> b;
+        G[a].push_back(b);
+        G[b].push_back(a);
+    }
+
+    DFS(1);
+    Depth[0] = -1;
+
+    
+/*    
+    for(int i = 1; i <= timer; ++i)
+        cerr << Linear[i] << " ";
+    cerr << endl;
+*/
+    
+    for(int i = 1; i <= q; ++i) {
+        int a1, b1, a2, b2;
+        cin >> a1 >> b1 >> a2 >> b2;
+        
+        int l1 = LCA(a1, b1);
+        int l2 = LCA(a2, b2);
+
+        AddQuery(a1, Parent[0][l1], a2, Parent[0][l2], i);
+        AddQuery(a1, Parent[0][l1], b2, l2, i);
+        AddQuery(b1, l1, a2, Parent[0][l2], i);
+        AddQuery(b1, l1, b2, l2, i);
+
+    }
+
+    SolveQueries();
+
+    for(int i = 1; i <= q; ++i)
+        cout << Answer[i] << "\n";
+    cout << endl;
+
+    return 0;
+}
