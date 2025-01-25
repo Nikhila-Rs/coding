@@ -1,0 +1,96 @@
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+
+    public static void main(String[] args) {
+  
+        Scanner sc = new Scanner(System.in);        
+        int nodeNum = Integer.parseInt(sc.nextLine());
+List<List<Integer>> refer = new ArrayList<List<Integer>>();
+        for(int i=0; i<nodeNum; i++) {
+            refer.add(new ArrayList<Integer>());
+        }
+        
+        while(sc.hasNextLine()) {
+            String[] pair = sc.nextLine().split(" ");
+            putRefer(refer, pair[0], pair[1]);
+        }
+        
+        int result = 0;
+        for(int i=1; i<=nodeNum; i++) {
+            boolean[] battleFront = new boolean[nodeNum];
+            expandFront(i, battleFront, refer);
+            result++;
+            int upto = i;
+            for(int j=i+1; j<=nodeNum; j++) {
+                if(battleFront[j-1]) {
+                    expandFront(j, battleFront, refer);
+                    if(allInFront(battleFront, upto, j)) {
+                        result++;
+                        for(int k=upto+1; k<j; k++) {
+                             expandFront(k, battleFront, refer);
+                        }
+                        upto = j;
+                    }
+                }
+            }
+        }
+        
+        System.out.println(result);
+    }
+    
+    public static void putRefer(List<List<Integer>> refer, String s1, String s2) {
+        int a = Integer.parseInt(s1);
+        int b = Integer.parseInt(s2);
+        List<Integer> tmp = refer.get(a-1);
+        tmp.add(b);
+        tmp = refer.get(b-1);
+        tmp.add(a);
+    }
+    
+    public static void expandFront(int i, 
+boolean[] battleFront, List<List<Integer>> refer) {
+        List<Integer> tmp = refer.get(i-1);
+        battleFront[i-1] = true;
+        if(tmp == null) {
+            return;
+        }
+        for(Integer thisInt : tmp) {
+            battleFront[thisInt-1] = true;
+        }
+    }
+    
+    public static boolean allInFront(boolean[] battleFront, int upto, int j) {
+        for(int i=upto; i<j-1; i++) {
+            if(battleFront[i] == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static void printArray(boolean[] battleFront) {
+        for(boolean b : battleFront) {
+            System.out.print(b + " ");
+        }
+        System.out.println(" ");
+    }
+    
+    public static void printList(List<List<Integer>> refer) {
+        for(List<Integer> l : refer) {
+            if(l == null) {
+                System.out.println("null ");
+            }
+            else {
+                for(Integer ii : l) {
+                    System.out.print(ii + " ");                    
+                }
+                System.out.println(" ");
+            }
+        }        
+    }
+}
