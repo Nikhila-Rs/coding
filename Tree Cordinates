@@ -1,0 +1,65 @@
+import sys
+
+
+n,m = input().strip().split(' ')
+n,m = [int(n),int(m)]
+edges = []
+for edges_i in range(n-1):
+   edges_t = [int(edges_temp) for edges_temp in input().strip().split(' ')]
+   edges.append(edges_t)
+points = []
+for points_i in range(m):
+   points_t = [int(points_temp) for points_temp in input().strip().split(' ')]
+   points.append(points_t)
+# your code goes here
+    
+class Node:
+    def __init__(self,i):
+        self.id = i
+        self.neighbors = set()
+
+nodes = [Node(i) for i in range(n)]
+for from_id,to_id in edges:
+    nodes[from_id-1].neighbors.add(nodes[to_id-1])
+    nodes[to_id-1].neighbors.add(nodes[from_id-1])
+
+distances = [[10**5] * n for _ in range(n)]
+for i in range(n):
+    distances[i][i] = 0
+    
+def set_distance(i, j, new_dist):
+    distances[i][j] = new_dist
+    distances[j][i] = new_dist
+     
+# find pair-wise distances with bfs <-- O(n^2)
+for center_node in nodes:
+    cur_dist = 1
+    marked = set([center_node])
+    cur_level = set([center_node])
+    while cur_level:
+        next_level = set()
+        for node in cur_level:
+            for neighbor in node.neighbors:
+                if not neighbor in marked:
+                    marked.add(neighbor)
+                    next_level.add(neighbor)
+                    set_distance(center_node.id, neighbor.id, cur_dist)
+        cur_level = next_level
+        cur_dist += 1
+
+# now go through the points
+max_dist = 0
+for p1 in range(m):
+    x1, y1 = points[p1]
+    x1 -= 1
+    y1 -= 1
+    for p2 in range(p1 + 1, m):
+        x2, y2 = points[p2]
+        x2 -= 1
+        y2 -= 1
+        new_dist = distances[x1][x2] + distances[y1][y2]
+        if new_dist > max_dist:
+            max_dist = new_dist
+
+print(max_dist)
+       
