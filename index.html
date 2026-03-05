@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Prediction System</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Animations */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .hidden-view {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-white bg-slate-900 overflow-x-hidden">
+
+    <!-- ========================================== -->
+    <!-- 1. AUTH SCREEN (LOGIN / SIGNUP) -->
+    <!-- ========================================== -->
+    <div id="auth-screen" class="min-h-screen bg-cover bg-center flex items-center justify-center relative transition-all duration-500" style="background-image: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')">
+        <!-- Dark overlay -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
+        
+        <!-- Glassmorphism Card -->
+        <div class="relative z-10 w-full max-w-md p-8 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] rounded-3xl transform transition-all duration-500 hover:shadow-cyan-500/30">
+            <div class="flex justify-center mb-6">
+                <div class="p-4 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full shadow-lg shadow-cyan-500/50">
+                    <i class="fa-solid fa-heart-pulse text-4xl text-white animate-pulse"></i>
+                </div>
+            </div>
+            
+            <h2 id="auth-title" class="text-3xl font-bold text-center mb-2 tracking-wider">LOGIN</h2>
+            <p class="text-center text-cyan-200 text-sm mb-8 font-light">
+                Heart Disease Prediction System
+            </p>
+
+            <form id="auth-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-cyan-100">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300"></i>
+                        <input type="text" id="username" class="w-full bg-slate-800/50 border border-cyan-500/30 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" placeholder="Enter username..." required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-cyan-100">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-300"></i>
+                        <input type="password" id="password" class="w-full bg-slate-800/50 border border-cyan-500/30 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" placeholder="Enter password..." required>
+                    </div>
+                </div>
+
+                <!-- Error Message Box -->
+                <div id="error-msg" class="hidden bg-red-500/20 border border-red-500/50 text-red-200 text-sm p-3 rounded-lg flex items-center">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> <span id="error-text"></span>
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full py-3 mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/40 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center group">
+                    <span id="auth-btn-text">Login</span>
+                    <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <button id="toggle-auth-btn" class="text-cyan-300 hover:text-white text-sm transition-colors border-b border-transparent hover:border-cyan-300 pb-1">
+                    Don't have an account? Sign Up
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. DASHBOARD SCREEN -->
+    <!-- ========================================== -->
+    <div id="dashboard-screen" class="hidden-view min-h-screen relative overflow-hidden">
+        <!-- Dynamic Background elements for 3D feel -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <!-- Navbar -->
+        <nav class="w-full bg-slate-800/50 backdrop-blur-md border-b border-white/10 p-4 sticky top-0 z-50 shadow-lg">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-lg shadow-lg shadow-cyan-500/30">
+                        <i class="fa-solid fa-heart-pulse text-white text-xl"></i>
+                    </div>
+                    <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-300 tracking-wide">
+                        Heart Disease Prediction System
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center text-cyan-200 bg-slate-700/50 px-4 py-2 rounded-full border border-cyan-500/20">
+                        <i class="fa-solid fa-user mr-2"></i> Welcome, <span id="display-username" class="ml-1 font-bold">User</span>!
+                    </div>
+                    <button onclick="logout()" class="flex items-center px-4 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg border border-red-500/30 transition-all duration-300">
+                        <i class="fa-solid fa-right-from-bracket md:mr-2"></i>
+                        <span class="hidden md:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 mt-4 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+            
+            <!-- Left Column: Input Form -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-slate-800/40 backdrop-blur-lg border border-slate-700 p-6 md:p-8 rounded-3xl shadow-2xl">
+                    <h2 class="text-2xl font-semibold mb-6 flex items-center text-cyan-100 border-b border-slate-700 pb-4">
+                        <i class="fa-solid fa-notes-medical mr-3 text-cyan-400"></i> Patient Details
+                    </h2>
+                    
+                    <form id="predict-form" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Age</label>
+                                <input type="number" id="age" required class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all" placeholder="E.g. 45">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Gender</label>
+                                <select id="gender" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Blood Pressure</label>
+                                <input type="number" id="bp" required class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all" placeholder="E.g. 120">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Cholesterol Level</label>
+                                <input type="number" id="chol" required class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all" placeholder="E.g. 200">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">ECG Level</label>
+                                <input type="number" id="ecg" required class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all" placeholder="0, 1 or 2">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Weight</label>
+                                <input type="number" id="weight" required class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all" placeholder="E.g. 70">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Symptoms</label>
+                            <select id="symptoms" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all">
+                                <option value="No Symptoms">No Symptoms</option>
+                                <option value="Chest Pain">Chest Pain</option>
+                                <option value="Shortness of Breath">Shortness of Breath</option>
+                                <option value="Fatigue">Fatigue</option>
+                                <option value="Dizziness">Dizziness</option>
+                                <option value="Palpitations">Palpitations</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" id="predict-btn" class="w-full py-4 mt-6 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transform hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] transition-all duration-300 flex items-center justify-center text-lg">
+                            <span id="predict-btn-text">Predict</span> 
+                            <i id="predict-btn-icon" class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Graphs and Results -->
+            <div class="lg:col-span-7 flex flex-col h-full">
+                
+                <!-- Output Prediction Result Card -->
+                <div id="result-card" class="bg-slate-800/40 border-slate-700 p-8 rounded-3xl border backdrop-blur-lg shadow-2xl transition-all duration-500 flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[250px] mb-6">
+                    
+                    <!-- Default State before prediction -->
+                    <div id="result-default" class="text-slate-400 flex flex-col items-center">
+                        <i class="fa-solid fa-shield-heart text-6xl mb-4 opacity-50"></i>
+                        <h3 class="text-xl font-medium">Enter details to see prediction result</h3>
+                    </div>
+
+                    <!-- Prediction Result State (Hidden by default) -->
+                    <div id="result-content" class="hidden relative z-10 w-full">
+                        <h3 class="text-lg text-slate-300 mb-2 uppercase tracking-widest">Prediction Result</h3>
+                        <div id="result-text" class="text-4xl md:text-5xl font-extrabold mb-4">
+                            <!-- Result will be injected here -->
+                        </div>
+                        <p id="result-desc" class="text-slate-300 max-w-md mx-auto">
+                            <!-- Description will be injected here -->
+                        </p>
+                    </div>
+                    
+                    <!-- Glowing background element -->
+                    <div id="result-glow" class="hidden absolute inset-0 opacity-20 blur-[80px] z-0"></div>
+                </div>
+
+                <!-- Graphs Section (Hidden initially, shown after prediction) -->
+                <div id="graphs-section" class="hidden opacity-0 transition-opacity duration-1000 grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                    
+                    <!-- Graph 1: Model Accuracy Bar Chart -->
+                    <div class="bg-slate-800/60 backdrop-blur-md border border-slate-700 p-5 rounded-2xl shadow-lg flex flex-col justify-between">
+                        <h3 class="text-sm font-semibold text-cyan-200 mb-4 flex items-center">
+                            <i class="fa-solid fa-chart-column mr-2"></i> Model Accuracy Comparison
+                        </h3>
+                        <div class="flex items-end justify-center h-48 space-x-12 pb-4 border-b border-slate-600/50 mt-auto">
+                            <!-- Logistic Regression Bar -->
+                            <div class="flex flex-col items-center group h-full justify-end">
+                                <span class="text-xs text-slate-400 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">82%</span>
+                                <div id="logistic-bar" class="w-12 bg-gradient-to-t from-blue-700 to-blue-400 rounded-t-sm h-[0%] relative shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-[1500ms] ease-out origin-bottom"></div>
+                                <span class="text-xs text-slate-300 mt-3 font-medium text-center w-20 leading-tight">Logistic<br/>Regression</span>
+                            </div>
+                            <!-- Random Forest Bar -->
+                            <div class="flex flex-col items-center group h-full justify-end">
+                                <span class="text-xs text-slate-400 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">94%</span>
+                                <div id="rf-bar" class="w-12 bg-gradient-to-t from-cyan-700 to-cyan-400 rounded-t-sm h-[0%] relative shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-[1500ms] ease-out origin-bottom"></div>
+                                <span class="text-xs text-slate-300 mt-3 font-medium text-center w-20 leading-tight">Random<br/>Forest</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graph 2: Confusion Matrix Heatmap -->
+                    <div class="bg-slate-800/60 backdrop-blur-md border border-slate-700 p-5 rounded-2xl shadow-lg flex flex-col justify-between">
+                        <h3 class="text-sm font-semibold text-cyan-200 mb-4 flex items-center">
+                            <i class="fa-solid fa-table-cells mr-2"></i> Random Forest Confusion Matrix
+                        </h3>
+                        <div class="flex flex-col items-center justify-center h-48 mt-auto">
+                            <!-- Y-Axis Label -->
+                            <div class="flex">
+                                <div class="flex flex-col justify-center pr-2 text-xs text-slate-400 -rotate-90 origin-center whitespace-nowrap">Actual</div>
+                                <!-- Matrix Grid -->
+                                <div>
+                                    <div class="flex gap-1 mb-1">
+                                        <div class="w-16 h-16 bg-blue-900 border border-blue-700/50 rounded flex items-center justify-center font-mono text-xl shadow-inner text-blue-100 hover:bg-blue-800 transition-colors animate-fade-in-up" style="animation-delay: 0.1s;">45</div>
+                                        <div class="w-16 h-16 bg-slate-800 border border-slate-700 rounded flex items-center justify-center font-mono text-xl text-slate-400 hover:bg-slate-700 transition-colors animate-fade-in-up" style="animation-delay: 0.2s;">3</div>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <div class="w-16 h-16 bg-slate-800 border border-slate-700 rounded flex items-center justify-center font-mono text-xl text-slate-400 hover:bg-slate-700 transition-colors animate-fade-in-up" style="animation-delay: 0.3s;">2</div>
+                                        <div class="w-16 h-16 bg-blue-800 border border-blue-600/50 rounded flex items-center justify-center font-mono text-xl shadow-inner text-blue-100 hover:bg-blue-700 transition-colors animate-fade-in-up" style="animation-delay: 0.4s;">50</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- X-Axis Label -->
+                            <div class="text-xs text-slate-400 mt-2 text-center w-full ml-6">Predicted</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ========================================== -->
+    <script>
+        // Database simulation
+        let users = [];
+        let viewMode = 'login'; // 'login' or 'signup'
+        
+        // DOM Elements
+        const authScreen = document.getElementById('auth-screen');
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        const authForm = document.getElementById('auth-form');
+        const authTitle = document.getElementById('auth-title');
+        const authBtnText = document.getElementById('auth-btn-text');
+        const toggleAuthBtn = document.getElementById('toggle-auth-btn');
+        const errorMsgBox = document.getElementById('error-msg');
+        const errorText = document.getElementById('error-text');
+        
+        // Form inputs
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        // Toggle Login / Signup View
+        toggleAuthBtn.addEventListener('click', () => {
+            errorMsgBox.classList.add('hidden');
+            if (viewMode === 'login') {
+                viewMode = 'signup';
+                authTitle.innerText = 'SIGN UP';
+                authBtnText.innerText = 'Sign Up';
+                toggleAuthBtn.innerText = 'Already have an account? Login';
+            } else {
+                viewMode = 'login';
+                authTitle.innerText = 'LOGIN';
+                authBtnText.innerText = 'Login';
+                toggleAuthBtn.innerText = 'Don\'t have an account? Sign Up';
+            }
+        });
+
+        // Handle Form Submit (Login / Signup)
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (viewMode === 'signup') {
+                // Signup Logic
+                const userExists = users.find(u => u.username === username);
+                if (userExists) {
+                    showError("Username already exists!");
+                    return;
+                }
+                users.push({ username, password });
+                alert("Account created successfully! Please login.");
+                usernameInput.value = '';
+                passwordInput.value = '';
+                toggleAuthBtn.click(); // Switch to login mode
+            } else {
+                // Login Logic
+                const validUser = users.find(u => u.username === username && u.password === password);
+                if (validUser) {
+                    errorMsgBox.classList.add('hidden');
+                    // Switch to Dashboard
+                    document.getElementById('display-username').innerText = validUser.username;
+                    authScreen.classList.add('hidden-view');
+                    dashboardScreen.classList.remove('hidden-view');
+                    resetPrediction();
+                } else {
+                    showError("Invalid username or password!");
+                }
+            }
+        });
+
+        function showError(msg) {
+            errorText.innerText = msg;
+            errorMsgBox.classList.remove('hidden');
+        }
+
+        // Logout Logic
+        function logout() {
+            usernameInput.value = '';
+            passwordInput.value = '';
+            dashboardScreen.classList.add('hidden-view');
+            authScreen.classList.remove('hidden-view');
+            resetPrediction();
+        }
+
+        // ==========================================
+        // Prediction Logic (Dashboard)
+        // ==========================================
+        const predictForm = document.getElementById('predict-form');
+        const predictBtn = document.getElementById('predict-btn');
+        const predictBtnText = document.getElementById('predict-btn-text');
+        const predictBtnIcon = document.getElementById('predict-btn-icon');
+        
+        const resultCard = document.getElementById('result-card');
+        const resultDefault = document.getElementById('result-default');
+        const resultContent = document.getElementById('result-content');
+        const resultText = document.getElementById('result-text');
+        const resultDesc = document.getElementById('result-desc');
+        const resultGlow = document.getElementById('result-glow');
+        
+        // Graph Elements
+        const graphsSection = document.getElementById('graphs-section');
+        const logisticBar = document.getElementById('logistic-bar');
+        const rfBar = document.getElementById('rf-bar');
+
+        predictForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Form data gathering (For backend API connection)
+            const formData = {
+                age: Number(document.getElementById('age').value),
+                gender: document.getElementById('gender').value,
+                bp: Number(document.getElementById('bp').value),
+                chol: Number(document.getElementById('chol').value),
+                ecg: Number(document.getElementById('ecg').value),
+                weight: Number(document.getElementById('weight').value),
+                symptoms: document.getElementById('symptoms').value
+            };
+
+            // Loading state
+            predictBtn.disabled = true;
+            predictBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            predictBtnText.innerText = 'Predicting...';
+            predictBtnIcon.className = 'fa-solid fa-spinner fa-spin ml-2';
+
+            // Reset graphs before new prediction
+            resetPrediction();
+
+            // Dummy ML Simulation (Replace with actual fetch API call to Python backend)
+            setTimeout(() => {
+                let riskScore = 0;
+                if (formData.age > 50) riskScore += 2;
+                if (formData.bp > 140) riskScore += 3;
+                if (formData.chol > 240) riskScore += 3;
+                if (formData.symptoms === 'Chest Pain' || formData.symptoms === 'Shortness of Breath') riskScore += 4;
+                if (formData.weight > 90) riskScore += 1;
+
+                if (riskScore >= 6) {
+                    showResult('High Risk (Abnormal)');
+                } else {
+                    showResult('Low Risk (Normal)');
+                }
+
+                // Reset Button
+                predictBtn.disabled = false;
+                predictBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                predictBtnText.innerText = 'Predict';
+                predictBtnIcon.className = 'fa-solid fa-arrow-right ml-2';
+
+            }, 1500);
+        });
+
+        function showResult(result) {
+            resultDefault.classList.add('hidden');
+            resultContent.classList.remove('hidden');
+            resultContent.classList.add('animate-fade-in-up');
+            resultGlow.classList.remove('hidden');
+
+            resultText.innerText = result;
+
+            if (result.includes('High')) {
+                // High Risk Styling
+                resultCard.className = 'bg-red-900/30 border-red-500/50 p-8 rounded-3xl border backdrop-blur-lg shadow-2xl shadow-red-500/20 transition-all duration-500 flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[250px] mb-6';
+                resultText.className = 'text-4xl md:text-5xl font-extrabold mb-4 text-red-400 drop-shadow-[0_0_15px_rgba(248,113,113,0.8)]';
+                resultDesc.innerText = "Warning! High risk of heart disease detected. Please consult a doctor immediately.";
+                resultGlow.className = 'absolute inset-0 opacity-20 blur-[80px] z-0 bg-red-500';
+            } else {
+                // Low Risk Styling
+                resultCard.className = 'bg-emerald-900/30 border-emerald-500/50 p-8 rounded-3xl border backdrop-blur-lg shadow-2xl shadow-emerald-500/20 transition-all duration-500 flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[250px] mb-6';
+                resultText.className = 'text-4xl md:text-5xl font-extrabold mb-4 text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.8)]';
+                resultDesc.innerText = "Great! Your heart is healthy. Keep it up.";
+                resultGlow.className = 'absolute inset-0 opacity-20 blur-[80px] z-0 bg-emerald-500';
+            }
+
+            // Animate Graphs appearing (Drawing effect)
+            graphsSection.classList.remove('hidden');
+            setTimeout(() => {
+                graphsSection.classList.remove('opacity-0');
+                // Trigger heights to animate from bottom
+                logisticBar.style.height = '82%';
+                rfBar.style.height = '94%';
+            }, 100);
+        }
+
+        function resetPrediction() {
+            resultDefault.classList.remove('hidden');
+            resultContent.classList.add('hidden');
+            resultContent.classList.remove('animate-fade-in-up');
+            resultGlow.classList.add('hidden');
+            resultCard.className = 'bg-slate-800/40 border-slate-700 p-8 rounded-3xl border backdrop-blur-lg shadow-2xl transition-all duration-500 flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[250px] mb-6';
+            
+            // Hide and reset graphs
+            graphsSection.classList.add('opacity-0');
+            setTimeout(() => {
+                graphsSection.classList.add('hidden');
+                logisticBar.style.height = '0%';
+                rfBar.style.height = '0%';
+            }, 500); // Wait for fade out
+        }
+
+    </script>
+</body>
+</html>
