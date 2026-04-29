@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfect Fit</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f7fb;
+      color: #111;
+    }
+    header {
+      padding: 18px 20px;
+      background: linear-gradient(135deg, #007bff, #00c2ff);
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 16px;
+      padding: 16px;
+      min-height: calc(100vh - 64px);
+    }
+    .panel, .canvas-panel {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .panel {
+      padding: 18px;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #cfd8e3;
+      font-size: 15px;
+    }
+    button {
+      margin-top: 14px;
+      border: none;
+      background: #007bff;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: #0062cc; }
+    .secondary {
+      background: #6c757d;
+    }
+    .secondary:hover {
+      background: #5a6268;
+    }
+    .stats {
+      margin-top: 16px;
+      padding: 14px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      line-height: 1.7;
+    }
+    .result {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .fit { background: #d4edda; color: #155724; }
+    .nofit { background: #f8d7da; color: #721c24; }
+    .canvas-panel {
+      position: relative;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+    }
+    .toolbar {
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .toolbar button {
+      width: auto;
+      margin: 0;
+      padding: 10px 14px;
+    }
+    .room {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background:
+        linear-gradient(0deg, rgba(0,0,0,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px),
+        #fff;
+      background-size: 40px 40px;
+      touch-action: none;
+      user-select: none;
+    }
+    .scale-info {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 2;
+    }
+    .room-dim {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      padding: 8px 10px;
+      background: rgba(0,123,255,0.9);
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 2;
+    }
+    .furniture {
+      position: absolute;
+      border: 3px solid #ff7b00;
+      background: rgba(255,123,0,0.22);
+      border-radius: 12px;
+      cursor: grab;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #6b3100;
+      font-weight: 700;
+      padding: 8px;
+      min-width: 70px;
+      min-height: 50px;
+      box-shadow: 0 8px 20px rgba(255,123,0,0.25);
+    }
+    .footer-note {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+      .canvas-panel { min-height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <header>Perfect Fit</header>
+
+  <div class="container">
+    <div class="panel">
+      <h2>Room and Furniture</h2>
+
+      <label for="roomWidth">Room width (cm)</label>
+      <input id="roomWidth" type="number" value="300" min="10" />
+
+      <label for="roomDepth">Room depth (cm)</label>
+      <input id="roomDepth" type="number" value="250" min="10" />
+
+      <label for="itemSelect">Furniture</label>
+      <select id="itemSelect">
+        <option value="sofa">Sofa - 220 x 90 cm</option>
+        <option value="bed">Bed - 200 x 150 cm</option>
+        <option value="table">Dining Table - 160 x 90 cm</option>
+        <option value="chair">Chair - 55 x 55 cm</option>
+        <option value="tvstand">TV Stand - 180 x 45 cm</option>
+      </select>
+
+      <button onclick="addFurniture()">Place Furniture</button>
+      <button class="secondary" onclick="checkFit()">Check Fit</button>
+      <button class="secondary" onclick="resetScene()">Reset</button>
+
+      <div class="stats" id="stats">
+        <div><b>Selected item:</b> Sofa</div>
+        <div><b>Item size:</b> 220 x 90 cm</div>
+        <div><b>Room size:</b> 300 x 250 cm</div>
+        <div><b>Remaining space:</b> 80 x 160 cm</div>
+      </div>
+
+      <div id="resultBox" class="result fit">This sofa fits in the room.</div>
+
+      <div class="footer-note">
+        Drag the furniture box inside the room area. This is a website version of the project before adding real camera AR.
+      </div>
+    </div>
+
+    <div class="canvas-panel">
+      <div class="toolbar">
+        <button onclick="zoomIn()">Zoom In</button>
+        <button onclick="zoomOut()">Zoom Out</button>
+        <button onclick="centerFurniture()">Center Furniture</button>
+      </div>
+      <div class="room" id="room">
+        <div class="scale-info" id="scaleInfo">Scale: 1 cm = 2 px</div>
+        <div class="room-dim" id="roomDim">Room</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const furnitureData = {
+      sofa: { name: "Sofa", width: 220, depth: 90, color: "rgba(255,123,0,0.22)" },
+      bed: { name: "Bed", width: 200, depth: 150, color: "rgba(255,90,90,0.22)" },
+      table: { name: "Dining Table", width: 160, depth: 90, color: "rgba(90,160,255,0.22)" },
+      chair: { name: "Chair", width: 55, depth: 55, color: "rgba(120,200,120,0.22)" },
+      tvstand: { name: "TV Stand", width: 180, depth: 45, color: "rgba(160,120,255,0.22)" }
+    };
+
+    const roomEl = document.getElementById("room");
+    const roomWidthInput = document.getElementById("roomWidth");
+    const roomDepthInput = document.getElementById("roomDepth");
+    const itemSelect = document.getElementById("itemSelect");
+    const stats = document.getElementById("stats");
+    const resultBox = document.getElementById("resultBox");
+    const scaleInfo = document.getElementById("scaleInfo");
+    const roomDim = document.getElementById("roomDim");
+
+    let scale = 2;
+    let furnitureEl = null;
+    let currentItem = furnitureData.sofa;
+
+    function updateUI() {
+      const roomW = parseFloat(roomWidthInput.value) || 0;
+      const roomD = parseFloat(roomDepthInput.value) || 0;
+      const item = currentItem;
+
+      stats.innerHTML = `
+        <div><b>Selected item:</b> ${item.name}</div>
+        <div><b>Item size:</b> ${item.width} x ${item.depth} cm</div>
+        <div><b>Room size:</b> ${roomW} x ${roomD} cm</div>
+        <div><b>Remaining space:</b> ${Math.max(roomW - item.width, 0)} x ${Math.max(roomD - item.depth, 0)} cm</div>
+      `;
+
+      roomDim.textContent = `Room: ${roomW} x ${roomD} cm`;
+      scaleInfo.textContent = `Scale: 1 cm = ${scale.toFixed(1)} px`;
+    }
+
+    function checkFit() {
+      const roomW = parseFloat(roomWidthInput.value) || 0;
+      const roomD = parseFloat(roomDepthInput.value) || 0;
+      const item = currentItem;
+
+      const fits = item.width <= roomW && item.depth <= roomD;
+
+      resultBox.className = "result " + (fits ? "fit" : "nofit");
+      resultBox.textContent = fits
+        ? `This ${item.name.toLowerCase()} fits in the room.`
+        : `This ${item.name.toLowerCase()} does NOT fit in the room.`;
+
+      updateUI();
+    }
+
+    function createFurniture() {
+      if (furnitureEl) furnitureEl.remove();
+
+      furnitureEl = document.createElement("div");
+      furnitureEl.className = "furniture";
+      furnitureEl.textContent = currentItem.name;
+      furnitureEl.style.background = currentItem.color;
+
+      const wPx = currentItem.width * scale;
+      const dPx = currentItem.depth * scale;
+      furnitureEl.style.width = wPx + "px";
+      furnitureEl.style.height = dPx + "px";
+
+      const roomRect = roomEl.getBoundingClientRect();
+      furnitureEl.style.left = Math.max((roomRect.width - wPx) / 2, 10) + "px";
+      furnitureEl.style.top = Math.max((roomRect.height - dPx) / 2, 10) + "px";
+
+      roomEl.appendChild(furnitureEl);
+      enableDrag(furnitureEl);
+    }
+
+    function addFurniture() {
+      const key = itemSelect.value;
+      currentItem = furnitureData[key];
+      updateUI();
+      createFurniture();
+      checkFit();
+    }
+
+    function resetScene() {
+      roomWidthInput.value = 300;
+      roomDepthInput.value = 250;
+      itemSelect.value = "sofa";
+      currentItem = furnitureData.sofa;
+      scale = 2;
+      updateUI();
+      createFurniture();
+      checkFit();
+    }
+
+    function centerFurniture() {
+      if (!furnitureEl) return;
+      const w = furnitureEl.offsetWidth;
+      const h = furnitureEl.offsetHeight;
+      const roomRect = roomEl.getBoundingClientRect();
+      furnitureEl.style.left = Math.max((roomRect.width - w) / 2, 10) + "px";
+      furnitureEl.style.top = Math.max((roomRect.height - h) / 2, 10) + "px";
+    }
+
+    function zoomIn() {
+      scale = Math.min(scale + 0.2, 6);
+      addFurniture();
+    }
+
+    function zoomOut() {
+      scale = Math.max(scale - 0.2, 0.6);
+      addFurniture();
+    }
+
+    function enableDrag(el) {
+      let dragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      el.onmousedown = startDrag;
+      el.ontouchstart = startDrag;
+
+      function startDrag(e) {
+        dragging = true;
+        el.style.cursor = "grabbing";
+        const point = e.touches ? e.touches[0] : e;
+        const rect = el.getBoundingClientRect();
+        offsetX = point.clientX - rect.left;
+        offsetY = point.clientY - rect.top;
+        document.addEventListener("mousemove", dragMove);
+        document.addEventListener("mouseup", stopDrag);
+        document.addEventListener("touchmove", dragMove, { passive: false });
+        document.addEventListener("touchend", stopDrag);
+      }
+
+      function dragMove(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        const point = e.touches ? e.touches[0] : e;
+        const roomRect = roomEl.getBoundingClientRect();
+        let x = point.clientX - roomRect.left - offsetX;
+        let y = point.clientY - roomRect.top - offsetY;
+        x = Math.max(0, Math.min(x, roomEl.clientWidth - el.offsetWidth));
+        y = Math.max(0, Math.min(y, roomEl.clientHeight - el.offsetHeight));
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+      }
+
+      function stopDrag() {
+        dragging = false;
+        el.style.cursor = "grab";
+        document.removeEventListener("mousemove", dragMove);
+        document.removeEventListener("mouseup", stopDrag);
+        document.removeEventListener("touchmove", dragMove);
+        document.removeEventListener("touchend", stopDrag);
+      }
+    }
+
+    itemSelect.addEventListener("change", () => {
+      currentItem = furnitureData[itemSelect.value];
+      updateUI();
+      createFurniture();
+      checkFit();
+    });
+
+    roomWidthInput.addEventListener("input", () => {
+      updateUI();
+      checkFit();
+    });
+
+    roomDepthInput.addEventListener("input", () => {
+      updateUI();
+      checkFit();
+    });
+
+    window.addEventListener("resize", () => {
+      createFurniture();
+    });
+
+    updateUI();
+    createFurniture();
+    checkFit();
+  </script>
+</body>
+</html>
